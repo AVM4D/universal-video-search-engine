@@ -1,0 +1,5 @@
+streamlit
+torch --extra-index-url https://download.pytorch.org/whl/cpu
+transformers
+Pillow
+opencv-python-headless
