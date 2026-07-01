@@ -46,6 +46,20 @@ if uploaded_file is not None:
         fps = int(cap.get(cv2.CAP_PROP_FPS))
         local_db = {}
         progress_bar = st.progress(0, text="Slicing video into seconds ...")
+
+        frame_count=0
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            if frame_count % fps == 0:
+                seconds = frame_count // fps
+                frame_name = f"frame_{seconds:04d}.jpg"
+                img_path = os.path.join(FRAMES_DIR, frame_name)
+                cv2.imwrite(img_path,frame)
+            frame_count+=1
+        cap.release()
+
         
 
 
