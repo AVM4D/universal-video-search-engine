@@ -60,6 +60,31 @@ if uploaded_file is not None:
             frame_count+=1
         cap.release()
 
+        all_frames=sorted(os.listdir(FRAMES_DIR))
+        total_frames=len(all_frames)
+        progress_bar.progress(10,text="AI is reading visual meanings... (0%)")
+        for idx, filename in enumerate(all_frames):
+            img_path =  os.path.join(FRAMES_DIR, filename)
+            img = Image.open(img_path)
+            
+            with torch.no_grad():
+                inputs=processor(images=img, return_tensors="pt").to(device)
+                image_features = model.get_image_features(**inputs)
+                embedding = image_features.cpu().numpy()[0].tolist()
+                local_db[filename]=embedding
+                pct=int((idx+1)/total_frames*100)
+                progress_bar.progress(10+int(pct*0.9),text=f"AI is reading visual meanings... ({pct%})")
+        
+        with open(db_path,"w") as f:
+            json.dump(local_db,f)
+
+        st.success("Video indexing complete! AI semantic vector database saved to disk")
+        
+
+            
+
+            
+
         
 
 
