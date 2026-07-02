@@ -26,8 +26,7 @@ UPLOAD_DIR = "user_uploads"
 FRAMES_DIR = "user_frames"
 
 for folder in [UPLOAD_DIR, FRAMES_DIR]:
-    if not os.path.exists(folder):
-        os.makedirs(folder)
+    os.makedirs(folder, exist_ok=True)
 
 uploaded_file = st.file_uploader("Choose a video file (.mp4, .mkv, .avi)", type=["mp4", "mkv", "avi"])
 
