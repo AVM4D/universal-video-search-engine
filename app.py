@@ -79,11 +79,33 @@ if uploaded_file is not None:
             json.dump(local_db,f)
 
         st.success("Video indexing complete! AI semantic vector database saved to disk")
+
+    search_query = st.text_input("What are you looking for inside the video?",placeholder="Type a concept, action, or object...")
+
+    if search_query:
+        with open(db_path,"r") as f:
+            video_db=json.load(f)
+        st.write(f"Searching for: **{search_query}**")
+        
+        with torch.no_grad():
+            text_inputs = processor(text=[search_query], return_tensors="pt", padding=True).to(device)
+            text_features = model.get_text_features(**text_inputs)
+
+            query_vector = text_features.cpu().numpy()[0]            
+        
+        import numpy as np
+
+        results = []
+
+        for filename, embedding in video_db.items():
+            frame_vector = np.array(embedding)
+            score=np.dot(query_vector,frame_vector)/(np.linalg.norm(query_vector)*np.linalg.norm(frame_vector))
+            results.append((score,filename))
+        
+        results.sort(reverse=True)
+        best_score, best_frame = results[0]
         
 
-            
-
-            
 
         
 
