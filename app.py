@@ -70,10 +70,10 @@ if uploaded_file is not None:
             with torch.no_grad():
                 inputs=processor(images=img, return_tensors="pt").to(device)
                 image_features = model.get_image_features(**inputs)
-                embedding = image_features.cpu().numpy()[0].tolist()
+                embedding = image_features.pooler_output.cpu().numpy()[0].tolist()
                 local_db[filename]=embedding
                 pct=int((idx+1)/total_frames*100)
-                progress_bar.progress(10+int(pct*0.9),text=f"AI is reading visual meanings... ({pct%})")
+                progress_bar.progress(10+int(pct*0.9),text=f"AI is reading visual meanings... ({pct}%)")
         
         with open(db_path,"w") as f:
             json.dump(local_db,f)
@@ -91,7 +91,7 @@ if uploaded_file is not None:
             text_inputs = processor(text=[search_query], return_tensors="pt", padding=True).to(device)
             text_features = model.get_text_features(**text_inputs)
 
-            query_vector = text_features.cpu().numpy()[0]            
+            query_vector = text_features.pooler_output.cpu().numpy()[0]            
         
         import numpy as np
 
@@ -104,8 +104,11 @@ if uploaded_file is not None:
         
         results.sort(reverse=True)
         best_score, best_frame = results[0]
-        
 
+        matched_seconds = int(best_frame.split("_")[1].split(".")[0])
+
+        st.subheader(f"Best Match Found at Second **{matched_seconds}** (Confidence: {best_score:.2f})")
+        st.image(os.path.join(FRAMES_DIR, best_frame), use_container_width=True)
 
         
 
